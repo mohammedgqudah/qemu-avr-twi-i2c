@@ -10,3 +10,7 @@ config ARDUINO
     depends on AVR
     select AVR_ATMEGA_MCU
     select UNIMP
+	select SSD1306
+	select TMP421
+	select I2C
+	select TWI_I2C
