@@ -72,3 +72,7 @@ pub const TYPE_DEVICE: &CStr =
     unsafe { CStr::from_bytes_with_nul_unchecked(bindings::TYPE_DEVICE) };
 pub const TYPE_SYS_BUS_DEVICE: &CStr =
     unsafe { CStr::from_bytes_with_nul_unchecked(bindings::TYPE_SYS_BUS_DEVICE) };
+pub const TYPE_I2C_SLAVE: &CStr =
+    unsafe { CStr::from_bytes_with_nul_unchecked(bindings::TYPE_I2C_SLAVE) };
+pub const TYPE_I2C_BUS: &CStr =
+    unsafe { CStr::from_bytes_with_nul_unchecked(bindings::TYPE_I2C_BUS) };

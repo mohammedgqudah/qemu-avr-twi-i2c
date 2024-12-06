@@ -3,5 +3,4 @@ resolver = "2"
 members = [
     "qemu-api-macros",
     "qemu-api",
-    "hw/char/pl011",
-]
+    "hw/char/pl011", "hw/display/ssd1306", "hw/char/pxyz", "hw/i2c/twi_i2c"]

@@ -162,6 +162,7 @@ config MAC_VIA
 
 config AVR_POWER
     bool
+	select X_PL011_RUST
 
 config MCHP_PFSOC_DMC
     bool
