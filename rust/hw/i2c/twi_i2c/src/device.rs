@@ -113,7 +113,7 @@ impl TWI_I2CState {
                 println!("reg 3");
             }
             4 => {
-                //println!("reg 4");
+                println!("reg 4");
                 let x: u8 = self.twcr.into();
                 return x as u64;
             }
@@ -144,6 +144,8 @@ impl TWI_I2CState {
             }
             3 => {
                 self.twdr = registers::TWDR::from(data);
+                println!("{:#?}", self.twdr);
+                println!("data: {}", u8::from(self.twdr) as char);
                 self.write_data();
             }
             4 => {
@@ -161,15 +163,14 @@ impl TWI_I2CState {
                     self.stop();
                 } else if r.twint() && r.twen() {
                     // TODO: The global interrupt must be enabled SREG (I)
-                    // NEW transactions
+
+                    // This is a new transaction
                     if !self.twcr.twen() {
+                        // TODO: don't touch the first two? bits when setting the status
                         self.twsr = registers::TW_START.into();
+                        self.twcr.set_twen(true);
                     }
-                    self.twcr.set_twen(true);
-                    // TODO: call the interrupt
-                    println!("ASKING FOR INTERRUPT!");
-                    // TODO: set the START status in the correct location later.
-                    //self.twsr.set_status(bilge::prelude::u5::new(registers::TW_START));
+
                     unsafe {
                         qemu_set_irq(self.irq, 1);
                     };
@@ -198,13 +199,16 @@ impl TWI_I2CState {
     }
     fn write_data(&mut self) {
         // report that you cannot write when twint is low
-        self.twcr.set_twwc(!self.twcr.twint());
+        if !self.twcr.twint() {
+            self.twcr.set_twwc(true);
+            return;
+        }
 
         if self.twcr.twsta() {
             // If the START bit was set, then this is the first data in the transaction
-            // and it contains the (slave, TODO: this is true if in masster mode) address.
+            // and it contains the sla+w (slave address + w bit)
             self.twcr.set_twsta(false);
-            match i2c_start_transfer(self.bus, self.twdr.into(), false) {
+            match i2c_start_transfer(self.bus, u8::from(self.twdr) >> 1, false) {
                 Ok(_) => {
                     self.set_status(registers::TW_MT_SLA_ACK);
                 }
@@ -232,6 +236,7 @@ impl TWI_I2CState {
 // TODO: move somewhere else
 // TODO: Should this be safe or unsafe?
 fn i2c_start_transfer(bus: *mut I2CBus, address: u8, is_recv: bool) -> Result<(), ()> {
+    println!("Starting a transfer @ address: {}", address);
     let result = unsafe { qemu_api::bindings::i2c_start_transfer(bus, address, is_recv) };
     if result > 0 {
         Err(())

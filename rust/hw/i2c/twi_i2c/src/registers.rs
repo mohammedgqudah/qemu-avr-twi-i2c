@@ -94,6 +94,15 @@ pub struct TWAR {
 /// lost bus arbitration, no data is lost in the transition from Master to
 /// Slave. Handling of the ACK bit is controlled automatically by the TWI logic,
 /// the CPU cannot access the ACK bit directly.
+///
+/// 24.6 Using the TWI
+///
+/// The application software should now examine the value of TWSR, to make sure
+/// that the START condition was successfully transmitted. If TWSR indicates
+/// otherwise, the application software might take some special action, like
+/// calling an error routine. Assuming that the status code is as expected,
+/// **the application must load SLA+W into TWDR.** Remember that TWDR is used
+/// both for address and data.
 pub struct TWDR {
     pub twd0: bool,
     pub twd1: bool,
